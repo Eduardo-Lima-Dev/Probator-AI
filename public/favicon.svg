@@ -1,0 +1,83 @@
+<svg width="256" height="256" viewBox="80 70 410 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blueGradient" x1="94" y1="230" x2="407" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#006D7A"/>
+      <stop offset="0.55" stop-color="#004B78"/>
+      <stop offset="1" stop-color="#005C95"/>
+    </linearGradient>
+
+    <linearGradient id="tealGradient" x1="196" y1="204" x2="378" y2="204" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#004B78"/>
+      <stop offset="0.55" stop-color="#007D76"/>
+      <stop offset="1" stop-color="#009C86"/>
+    </linearGradient>
+
+    <linearGradient id="checkGradient" x1="202" y1="144" x2="456" y2="144" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#004B78"/>
+      <stop offset="0.55" stop-color="#008778"/>
+      <stop offset="1" stop-color="#00A187"/>
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M100 169L162 100H265V321H100V169Z"
+    stroke="url(#blueGradient)"
+    stroke-width="9"
+    stroke-linejoin="round"
+  />
+
+  <path
+    d="M101 169H151C158 169 163 164 163 157V101"
+    stroke="url(#blueGradient)"
+    stroke-width="9"
+    stroke-linejoin="round"
+  />
+
+  <path d="M128 196H158" stroke="url(#blueGradient)" stroke-width="7" stroke-linecap="round" />
+  <path d="M128 215H174" stroke="url(#blueGradient)" stroke-width="7" stroke-linecap="round" />
+  <path d="M128 234H184" stroke="url(#blueGradient)" stroke-width="7" stroke-linecap="round" />
+  <path d="M128 253H197" stroke="url(#blueGradient)" stroke-width="7" stroke-linecap="round" />
+  <path d="M128 272H212" stroke="url(#blueGradient)" stroke-width="7" stroke-linecap="round" />
+  <path d="M128 291H222" stroke="url(#blueGradient)" stroke-width="7" stroke-linecap="round" />
+
+  <circle cx="128" cy="196" r="3.5" fill="url(#blueGradient)" />
+  <circle cx="128" cy="215" r="3.5" fill="url(#blueGradient)" />
+  <circle cx="128" cy="234" r="3.5" fill="url(#blueGradient)" />
+  <circle cx="128" cy="253" r="3.5" fill="url(#blueGradient)" />
+  <circle cx="128" cy="272" r="3.5" fill="url(#blueGradient)" />
+  <circle cx="128" cy="291" r="3.5" fill="url(#blueGradient)" />
+
+  <circle cx="285" cy="212" r="91" fill="url(#tealGradient)" />
+  <circle cx="285" cy="212" r="113" stroke="url(#blueGradient)" stroke-width="17" fill="none" />
+
+  <path
+    d="M338 106C313 94 283 91 253 97C204 107 166 146 156 195"
+    stroke="white"
+    stroke-width="13"
+    stroke-linecap="round"
+    opacity="0.9"
+  />
+
+  <path
+    d="M338 106C313 94 283 91 253 97C204 107 166 146 156 195"
+    stroke="url(#blueGradient)"
+    stroke-width="13"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="M199 190L243 180L276 211C313 147 374 70 457 17C401 80 351 151 318 214L289 266C285 273 279 273 273 266L199 190Z"
+    fill="#052C46"
+    stroke="#052C46"
+    stroke-width="7"
+    stroke-linejoin="round"
+  />
+
+  <path
+    d="M201 188L243 177L276 207C314 142 373 69 456 17C400 79 352 147 320 210L289 261C285 268 280 268 274 262L201 188Z"
+    fill="url(#checkGradient)"
+    stroke="#D9F2EE"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+  />
+</svg>
