@@ -14,7 +14,7 @@ type AuthResponse = {
   message?: string
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? ''
+const API_BASE_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
 const AUTH_API_PREFIX = import.meta.env.VITE_AUTH_API_PREFIX ?? '/api/auth'
 const AUTH_MODE = import.meta.env.VITE_AUTH_MODE ?? (API_BASE_URL ? 'api' : 'local')
 const LOCAL_USERS_KEY = 'probatorai.local.users'
