@@ -1,13 +1,53 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { logoutUser } from '../api/authApi'
+import { getCurrentUser, type UserMe } from '../api/userApi'
 import { Card } from '../components/ui/Card'
 import { recentExams } from '../constants/dashboard'
 
 export function DashboardPage() {
+  const navigate = useNavigate()
+  const [currentUser, setCurrentUser] = useState<UserMe | null>(null)
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
+  const [error, setError] = useState('')
+
+  const displayName = useMemo(() => {
+    if (!currentUser?.email) {
+      return 'Professor'
+    }
+
+    return currentUser.email.split('@')[0]
+  }, [currentUser])
+
+  useEffect(() => {
+    const loadUser = async () => {
+      setIsLoadingUser(true)
+      setError('')
+
+      try {
+        const me = await getCurrentUser()
+        setCurrentUser(me)
+      } catch {
+        logoutUser()
+        setError('Sua sessao expirou. Faca login novamente.')
+        navigate('/login', { replace: true })
+      } finally {
+        setIsLoadingUser(false)
+      }
+    }
+
+    void loadUser()
+  }, [navigate])
+
   return (
     <main className="min-h-screen bg-page pb-28 pt-6 font-sans text-secondary-800">
       <div className="mx-auto w-full max-w-md px-4">
         <header className="mb-6">
-          <h1 className="text-[32px] leading-tight font-semibold text-secondary-800">Ola, Fulano</h1>
+          <h1 className="text-[32px] leading-tight font-semibold text-secondary-800">
+            {isLoadingUser ? 'Carregando...' : `Ola, ${displayName}`}
+          </h1>
           <p className="mt-2 text-base text-neutral-600">Aqui esta um resumo das suas provas recentes.</p>
+          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
         </header>
 
         <section className="mb-8 grid grid-cols-2 gap-4">

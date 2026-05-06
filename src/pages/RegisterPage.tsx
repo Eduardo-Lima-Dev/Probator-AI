@@ -1,18 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { registerUser } from '../api/authApi'
+import { getMaterias, type Materia } from '../api/materiasApi'
 import { EyeClosedIcon, EyeOpenIcon } from '../components/icons/AuthIcons'
 import { ProbatorLogoIcon } from '../components/icons/ProbatorLogoIcon'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { TextField } from '../components/ui/TextField'
-import { courseOptions } from '../constants/auth'
 
 type RegisterForm = {
   fullName: string
   email: string
-  course: string
+  materiaId: string
   password: string
   confirmPassword: string
 }
@@ -20,7 +20,7 @@ type RegisterForm = {
 const initialForm: RegisterForm = {
   fullName: '',
   email: '',
-  course: '',
+  materiaId: '',
   password: '',
   confirmPassword: '',
 }
@@ -31,8 +31,26 @@ export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingMaterias, setIsLoadingMaterias] = useState(true)
+  const [materias, setMaterias] = useState<Materia[]>([])
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const loadMaterias = async () => {
+      setIsLoadingMaterias(true)
+      try {
+        const materiasList = await getMaterias()
+        setMaterias(materiasList)
+      } catch {
+        setError('Nao foi possivel carregar as materias. Tente novamente.')
+      } finally {
+        setIsLoadingMaterias(false)
+      }
+    }
+
+    void loadMaterias()
+  }, [])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -50,7 +68,7 @@ export function RegisterPage() {
       await registerUser({
         name: form.fullName,
         email: form.email,
-        course: form.course,
+        materiaId: form.materiaId,
         password: form.password,
       })
 
@@ -122,23 +140,24 @@ export function RegisterPage() {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="course" className="text-sm font-semibold tracking-wide text-secondary-800">
-                CURSO
+                MATERIA
               </label>
               <select
                 id="course"
                 required
-                value={form.course}
+                value={form.materiaId}
+                disabled={isLoadingMaterias}
                 className="h-14 rounded-sm border border-border-gold bg-surface-soft px-4 text-base text-secondary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
                 onChange={(event) =>
-                  setForm((prev) => ({ ...prev, course: event.target.value }))
+                  setForm((prev) => ({ ...prev, materiaId: event.target.value }))
                 }
               >
                 <option value="" disabled>
-                  Selecione um curso
+                  {isLoadingMaterias ? 'Carregando materias...' : 'Selecione uma materia'}
                 </option>
-                {courseOptions.map((course) => (
-                  <option key={course} value={course}>
-                    {course}
+                {materias.map((materia) => (
+                  <option key={materia.id} value={materia.id}>
+                    {materia.name}
                   </option>
                 ))}
               </select>
