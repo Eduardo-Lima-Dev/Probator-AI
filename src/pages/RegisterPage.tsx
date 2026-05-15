@@ -2,236 +2,216 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { registerUser } from '../api/authApi'
-import { getMaterias, type Materia } from '../api/materiasApi'
-import { EyeClosedIcon, EyeOpenIcon } from '../components/icons/AuthIcons'
-import { ProbatorLogoIcon } from '../components/icons/ProbatorLogoIcon'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { TextField } from '../components/ui/TextField'
-
-type RegisterForm = {
-  fullName: string
-  email: string
-  materiaId: string
-  password: string
-  confirmPassword: string
-}
-
-const initialForm: RegisterForm = {
-  fullName: '',
-  email: '',
-  materiaId: '',
-  password: '',
-  confirmPassword: '',
-}
+import { getMaterias } from '../api/materiasApi'
+import type { Materia } from '../api/materiasApi'
+import { useTheme } from '../theme/ThemeContext'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { BoldLogo } from '../components/ui/BoldLogo'
+import { BoldBtn } from '../components/ui/BoldBtn'
+import { BoldField } from '../components/ui/BoldField'
+import { I } from '../components/ui/icons'
 
 export function RegisterPage() {
+  const { T } = useTheme()
+  const isMobile = useIsMobile()
   const navigate = useNavigate()
-  const [form, setForm] = useState<RegisterForm>(initialForm)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingMaterias, setIsLoadingMaterias] = useState(true)
+
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [materiaId, setMateriaId] = useState('')
   const [materias, setMaterias] = useState<Materia[]>([])
-  const [message, setMessage] = useState('')
+  const [loadingMaterias, setLoadingMaterias] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const loadMaterias = async () => {
-      setIsLoadingMaterias(true)
-      try {
-        const materiasList = await getMaterias()
-        setMaterias(materiasList)
-      } catch {
-        setError('Nao foi possivel carregar as materias. Tente novamente.')
-      } finally {
-        setIsLoadingMaterias(false)
-      }
-    }
-
-    void loadMaterias()
+    getMaterias()
+      .then(setMaterias)
+      .catch(() => setError('Não foi possível carregar as matérias.'))
+      .finally(() => setLoadingMaterias(false))
   }, [])
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setMessage('')
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
     setError('')
-
-    if (form.password !== form.confirmPassword) {
-      setError('As senhas nao coincidem.')
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.')
       return
     }
-
     setIsLoading(true)
-
     try {
-      await registerUser({
-        name: form.fullName,
-        email: form.email,
-        materiaId: form.materiaId,
-        password: form.password,
-      })
-
-      setMessage('Cadastro realizado com sucesso.')
-      setForm(initialForm)
-      navigate('/login')
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : 'Nao foi possivel concluir o cadastro.',
-      )
+      await registerUser({ name, email, password, materiaId })
+      navigate('/login', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível criar a conta.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  return (
-    <main className="min-h-screen bg-page px-4 py-8 font-sans text-secondary-800">
-      <div className="mx-auto w-full max-w-md">
-        <header className="mb-4 flex items-center gap-2 px-1 text-xl font-semibold">
-          <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-xl leading-none transition hover:bg-secondary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-            type="button"
-            aria-label="Voltar para login"
-            onClick={() => navigate('/login')}
-          >
-            <span aria-hidden="true">←</span>
-          </button>
-          <strong>Probator-AI</strong>
-        </header>
+  const formContent = (
+    <div
+      style={{
+        flex: isMobile ? undefined : 0.85,
+        padding: isMobile ? '28px 24px 40px' : '48px 72px',
+        background: T.bg,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: isMobile ? undefined : 'center',
+        overflowY: 'auto',
+      }}
+    >
+      <div style={{ maxWidth: isMobile ? undefined : 400, width: '100%' }}>
+        <button
+          type="button"
+          onClick={() => navigate('/login')}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'transparent',
+            border: 'none',
+            color: T.textDim,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            fontSize: 13,
+            fontWeight: 500,
+            padding: 0,
+            marginBottom: 20,
+          }}
+        >
+          <I.ArrowLeft size={14} stroke={2} />
+          Voltar para login
+        </button>
 
-        <Card className="border border-border-soft">
-          <div className="mx-auto flex w-full justify-center pl-10" aria-label="Logo Probator-IA">
-            <ProbatorLogoIcon iconOnly className="h-28 w-28" />
-          </div>
+        <h2 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 700, margin: '0 0 6px', letterSpacing: -0.8, color: T.text }}>
+          Criar conta
+        </h2>
+        <p style={{ color: T.textDim, margin: '0 0 24px', fontSize: 14 }}>
+          Junte-se ao Probator·AI para criar provas com IA.
+        </p>
 
-          <h1 className="mt-4 text-center text-3xl leading-tight font-semibold">Criar Conta</h1>
-          <p className="mx-auto mt-2 max-w-[320px] text-center text-sm text-neutral-700">
-            Junte-se ao Probator-AI para criar provas de forma mais inteligente.
-          </p>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <BoldField T={T} label="NOME COMPLETO" type="text" value={name} onChange={setName} placeholder="Prof. Ricardo Silva" required autoComplete="name" />
+          <BoldField T={T} label="E-MAIL INSTITUCIONAL" type="email" value={email} onChange={setEmail} placeholder="prof@universidade.br" required autoComplete="email" />
 
-          <form className="mt-6 flex w-full flex-col gap-4" onSubmit={handleSubmit}>
-            <TextField
-              id="fullName"
-              label="NOME COMPLETO"
-              type="text"
-              placeholder="nome"
-              autoComplete="name"
-              required
-              value={form.fullName}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, fullName: event.target.value }))
-              }
-            />
-
-            <TextField
-              id="email"
-              label="E-MAIL"
-              type="email"
-              placeholder="exemplo@exemplo.com"
-              autoComplete="email"
-              required
-              value={form.email}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, email: event.target.value }))
-              }
-            />
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="course" className="text-sm font-semibold tracking-wide text-secondary-800">
-                MATERIA
-              </label>
-              <select
-                id="course"
-                required
-                value={form.materiaId}
-                disabled={isLoadingMaterias}
-                className="h-14 rounded-sm border border-border-gold bg-surface-soft px-4 text-base text-secondary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, materiaId: event.target.value }))
-                }
-              >
-                <option value="" disabled>
-                  {isLoadingMaterias ? 'Carregando materias...' : 'Selecione uma materia'}
-                </option>
-                {materias.map((materia) => (
-                  <option key={materia.id} value={materia.id}>
-                    {materia.name}
-                  </option>
-                ))}
-              </select>
+          {/* Materia select */}
+          <label style={{ display: 'block' }}>
+            <div style={{ fontSize: 12, color: T.textDim, marginBottom: 7, fontWeight: 600, letterSpacing: 0.2 }}>
+              MATÉRIA <span style={{ color: T.danger, marginLeft: 2 }}>*</span>
             </div>
-
-            <TextField
-              id="password"
-              label="SENHA"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="........"
-              autoComplete="new-password"
+            <select
               required
-              value={form.password}
-              rightElement={
-                <button
-                  type="button"
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-secondary-500 hover:bg-secondary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                >
-                  {showPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
-                </button>
-              }
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, password: event.target.value }))
-              }
-            />
+              value={materiaId}
+              onChange={(e) => setMateriaId(e.target.value)}
+              disabled={loadingMaterias}
+              style={{
+                width: '100%',
+                minHeight: 50,
+                padding: '12px 14px',
+                background: T.surface,
+                borderRadius: 12,
+                border: `1.5px solid ${T.border}`,
+                color: materiaId ? T.text : T.textMute,
+                fontSize: 15,
+                fontFamily: 'inherit',
+                fontWeight: 500,
+                outline: 'none',
+                cursor: loadingMaterias ? 'wait' : 'pointer',
+                appearance: 'none',
+              }}
+            >
+              <option value="" disabled>
+                {loadingMaterias ? 'Carregando matérias...' : 'Selecione uma matéria'}
+              </option>
+              {materias.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-            <TextField
-              id="confirmPassword"
-              label="CONFIRMAR SENHA"
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="........"
-              autoComplete="new-password"
-              required
-              value={form.confirmPassword}
-              rightElement={
-                <button
-                  type="button"
-                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-secondary-500 hover:bg-secondary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
-                >
-                  {showConfirmPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
-                </button>
-              }
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))
-              }
-            />
+          <BoldField T={T} label="SENHA" type="password" value={password} onChange={setPassword} placeholder="••••••••" required autoComplete="new-password" />
+          <BoldField T={T} label="CONFIRMAR SENHA" type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="••••••••" required autoComplete="new-password" />
 
-            <Button type="submit" className="mt-2 h-14 w-full text-base" disabled={isLoading}>
-              {isLoading ? 'Cadastrando...' : 'Cadastrar-se'}
-              <span aria-hidden="true">→</span>
-            </Button>
-          </form>
-
-          {(message || error) && (
-            <p className={`mt-3 w-full text-center text-sm ${error ? 'text-danger' : 'text-success'}`}>
-              {error || message}
-            </p>
+          {error && (
+            <div style={{ fontSize: 13, color: T.danger, padding: '10px 14px', background: `${T.danger}12`, borderRadius: 10, border: `1px solid ${T.danger}30` }}>
+              {error}
+            </div>
           )}
 
-          <p className="mt-6 text-center text-base text-neutral-700">
-            Ja tem uma conta?{' '}
-            <Link
-              to="/login"
-              className="font-bold text-secondary-800 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-            >
-              Entrar
-            </Link>
-          </p>
-        </Card>
+          <BoldBtn T={T} size="lg" variant="ai" type="submit" disabled={isLoading} iconRight={<I.ArrowRight size={16} stroke={2.2} />} style={{ width: '100%', marginTop: 4 }}>
+            {isLoading ? 'Criando conta…' : 'Criar conta'}
+          </BoldBtn>
+        </form>
+
+        <p style={{ marginTop: 24, color: T.textDim, fontSize: 13.5, textAlign: 'center' }}>
+          Já tem uma conta?{' '}
+          <Link to="/login" style={{ color: T.ai, textDecoration: 'none', fontWeight: 600 }}>
+            Entrar
+          </Link>
+        </p>
       </div>
-    </main>
+    </div>
+  )
+
+  if (isMobile) {
+    return (
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: T.bg, minHeight: '100vh' }}>
+        <div style={{ background: T.hero, padding: '28px 24px 32px', color: '#fff', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <BoldLogo size={28} />
+            <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: -0.3 }}>Probator·AI</span>
+          </div>
+          <h1 style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.1, letterSpacing: -0.8, margin: '16px 0 8px' }}>
+            Comece a criar provas inteligentes.
+          </h1>
+        </div>
+        {formContent}
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ flex: 1, display: 'flex', minHeight: '100vh' }}>
+      <div
+        style={{
+          flex: 1.1,
+          background: T.hero,
+          color: '#fff',
+          padding: '40px 56px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40 }}>
+          <BoldLogo size={40} />
+          <span style={{ fontWeight: 700, fontSize: 20, letterSpacing: -0.3 }}>Probator·AI</span>
+        </div>
+        <h1 style={{ fontSize: 56, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, margin: '0 0 18px', maxWidth: 480 }}>
+          Comece a criar provas{' '}
+          <em
+            style={{
+              fontStyle: 'normal',
+              background: T.aiGrad,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            inteligentes
+          </em>
+          .
+        </h1>
+        <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', maxWidth: 420, lineHeight: 1.5 }}>
+          Crie sua conta em segundos e comece a gerar avaliações com IA.
+        </p>
+      </div>
+      {formContent}
+    </div>
   )
 }
