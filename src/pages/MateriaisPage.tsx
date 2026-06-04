@@ -53,7 +53,7 @@ export function MateriaisPage() {
     setShowForm(true)
   }
 
-  function openEdit(m: Materia, e: React.MouseEvent) {
+  function openEdit(m: Materia, e: import('react').MouseEvent<HTMLButtonElement>) {
     e.stopPropagation()
     setEditTarget(m)
     setFormName(m.name)
