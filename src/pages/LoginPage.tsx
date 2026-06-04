@@ -10,16 +10,16 @@ import { BoldBtn } from '../components/ui/BoldBtn'
 import { BoldField } from '../components/ui/BoldField'
 import { I } from '../components/ui/icons'
 
-function GoogleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#4285F4" d="M22 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.6c-.2 1.3-1 2.4-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.5z" />
-      <path fill="#34A853" d="M12 22c2.8 0 5.2-.9 6.9-2.5l-3.4-2.6c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.7C4.4 19.9 8 22 12 22z" />
-      <path fill="#FBBC05" d="M6.2 13.6c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V6.9H2.7C2 8.3 1.6 9.9 1.6 11.6s.4 3.3 1.1 4.7l3.5-2.7z" />
-      <path fill="#EA4335" d="M12 5.4c1.5 0 2.9.5 4 1.5l3-3C17.1 2.2 14.7 1.2 12 1.2 8 1.2 4.4 3.3 2.7 6.9l3.5 2.7c.8-2.5 3.1-4.2 5.8-4.2z" />
-    </svg>
-  )
-}
+// function GoogleIcon() {
+//   return (
+//     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+//       <path fill="#4285F4" d="M22 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.6c-.2 1.3-1 2.4-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.5z" />
+//       <path fill="#34A853" d="M12 22c2.8 0 5.2-.9 6.9-2.5l-3.4-2.6c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.7C4.4 19.9 8 22 12 22z" />
+//       <path fill="#FBBC05" d="M6.2 13.6c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V6.9H2.7C2 8.3 1.6 9.9 1.6 11.6s.4 3.3 1.1 4.7l3.5-2.7z" />
+//       <path fill="#EA4335" d="M12 5.4c1.5 0 2.9.5 4 1.5l3-3C17.1 2.2 14.7 1.2 12 1.2 8 1.2 4.4 3.3 2.7 6.9l3.5 2.7c.8-2.5 3.1-4.2 5.8-4.2z" />
+//     </svg>
+//   )
+// }
 
 export function LoginPage() {
   const { T } = useTheme()
@@ -115,7 +115,7 @@ export function LoginPage() {
             {isLoading ? 'Entrando…' : 'Entrar'}
           </BoldBtn>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: T.textMute, fontSize: 12, margin: '4px 0' }}>
+          {/* <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: T.textMute, fontSize: 12, margin: '4px 0' }}>
             <div style={{ flex: 1, height: 1, background: T.border }} />
             <span>ou</span>
             <div style={{ flex: 1, height: 1, background: T.border }} />
@@ -123,7 +123,7 @@ export function LoginPage() {
 
           <BoldBtn T={T} size="lg" variant="outline" type="button" style={{ width: '100%' }} icon={<GoogleIcon />}>
             Continuar com Google
-          </BoldBtn>
+          </BoldBtn> */}
         </form>
 
         <p style={{ marginTop: isMobile ? 'auto' : 28, paddingTop: isMobile ? 24 : undefined, color: T.textDim, fontSize: 13.5 }}>

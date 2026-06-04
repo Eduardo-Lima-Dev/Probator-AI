@@ -5,6 +5,7 @@ import { useTheme } from '../theme/ThemeContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { getMaterias } from '../api/materiasApi'
 import type { Materia } from '../api/materiasApi'
+import { getQuestions } from '../api/questionsApi'
 import { createExam } from '../api/examsApi'
 import type { DifficultyLevel } from '../api/examsApi'
 import { BoldBtn } from '../components/ui/BoldBtn'
@@ -38,8 +39,11 @@ export function NovaProvaPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    getMaterias()
-      .then(setMaterias)
+    Promise.all([getMaterias(), getQuestions()])
+      .then(([allMaterias, questions]) => {
+        const withQuestions = new Set(questions.map((q) => q.materiaId))
+        setMaterias(allMaterias.filter((m) => withQuestions.has(m.id)))
+      })
       .catch(() => {})
       .finally(() => setLoadingMaterias(false))
   }, [])
