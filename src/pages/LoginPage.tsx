@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { loginUser } from '../api/authApi'
+import { getAccessToken } from '../api/httpClient'
 import { useTheme } from '../theme/ThemeContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { BoldLogo } from '../components/ui/BoldLogo'
@@ -35,7 +36,16 @@ export function LoginPage() {
     setIsLoading(true)
     try {
       await loginUser({ email, password })
-      navigate('/provas', { replace: true })
+      // Decode JWT payload to redirect by role (sem request extra)
+      let role = 'professor'
+      try {
+        const token = getAccessToken()
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          role = payload.role ?? 'professor'
+        }
+      } catch {}
+      navigate(role === 'admin' ? '/admin/usuarios' : '/provas', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível realizar o login.')
     } finally {
