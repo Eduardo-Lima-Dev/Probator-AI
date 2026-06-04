@@ -56,7 +56,11 @@ export function RevisarProvaPage() {
   }, [state, navigate])
 
   useEffect(() => {
-    if (!activeVersionId) return
+    if (!activeVersionId) {
+      setLoadingVersion(false)
+      setVersionError('Nenhuma versão disponível para revisão.')
+      return
+    }
     setLoadingVersion(true)
     setVersionError('')
     setActiveQIdx(0)
