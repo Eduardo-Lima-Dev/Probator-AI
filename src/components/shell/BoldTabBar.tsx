@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useTheme } from '../../theme/ThemeContext'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
@@ -17,7 +18,7 @@ const ADMIN_TABS = [
   { to: '/admin/importar', label: 'Importar', icon: (size: number) => <I.Upload size={size} stroke={1.8} /> },
 ]
 
-function TabItem({ item }: { item: { to: string; label: string; icon: (size: number) => JSX.Element } }) {
+function TabItem({ item }: { item: { to: string; label: string; icon: (size: number) => ReactElement } }) {
   const { T } = useTheme()
   return (
     <NavLink
