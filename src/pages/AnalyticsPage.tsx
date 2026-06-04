@@ -1,16 +1,17 @@
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTheme } from '../theme/ThemeContext'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { mockProvas } from '../mocks/provas'
+import { getExamById, getAnswerKey } from '../api/examsApi'
+import type { ExamListItem, AnswerKey } from '../api/examsApi'
+import { StatusPill } from '../components/ui/StatusPill'
 import { BoldBtn } from '../components/ui/BoldBtn'
 import { Badge } from '../components/ui/Badge'
 import { I } from '../components/ui/icons'
 
-const DIST = [2, 4, 7, 9, 11, 5, 0]
-const DIST_LABELS = ['0–2', '2–4', '4–6', '6–7', '7–8', '8–9', '9–10']
-const DIST_MAX = Math.max(...DIST)
-
-const TOPICOS = ['Limites', 'Continuidade', 'Derivada · regra do produto', 'Limites no infinito', 'Derivada · cadeia', 'Reta tangente', 'Regra da cadeia', 'Derivada implícita', 'Continuidade por partes', 'Teorema do valor intermediário']
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+}
 
 export function AnalyticsPage() {
   const { T } = useTheme()
@@ -18,143 +19,163 @@ export function AnalyticsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
-  const prova = mockProvas.find((p) => p.id === id) ?? mockProvas.find((p) => p.status === 'Aplicada')
+  const [exam, setExam] = useState<ExamListItem | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [expandedVersionId, setExpandedVersionId] = useState<string | null>(null)
+  const [answerKeys, setAnswerKeys] = useState<Record<string, AnswerKey[]>>({})
+  const [loadingAk, setLoadingAk] = useState<string | null>(null)
 
-  if (!prova) {
+  useEffect(() => {
+    if (!id) return
+    getExamById(id)
+      .then(setExam)
+      .catch(() => setError('Prova não encontrada.'))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  async function toggleAnswerKey(versionId: string) {
+    if (expandedVersionId === versionId) {
+      setExpandedVersionId(null)
+      return
+    }
+    setExpandedVersionId(versionId)
+    if (answerKeys[versionId]) return
+    setLoadingAk(versionId)
+    try {
+      const ak = await getAnswerKey(versionId)
+      setAnswerKeys((prev) => ({ ...prev, [versionId]: ak }))
+    } catch {
+      // silently ignore
+    } finally {
+      setLoadingAk(null)
+    }
+  }
+
+  if (loading) {
+    return <div style={{ padding: 60, textAlign: 'center', color: T.textMute, fontSize: 14, background: T.bg, minHeight: '100vh' }}>Carregando…</div>
+  }
+
+  if (error || !exam) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: T.textMute, fontSize: 14, background: T.bg }}>
-        Prova não encontrada.
+      <div style={{ padding: '28px 32px', background: T.bg, minHeight: '100vh' }}>
+        <button type="button" onClick={() => navigate('/provas')} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'transparent', border: 'none', color: T.textDim, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, padding: 0, marginBottom: 16 }}>
+          <I.ArrowLeft size={12} stroke={2} /> Voltar
+        </button>
+        <div style={{ padding: '12px 16px', background: `${T.danger}12`, border: `1px solid ${T.danger}30`, borderRadius: 12, color: T.danger, fontSize: 13 }}>{error || 'Prova não encontrada.'}</div>
       </div>
     )
   }
 
-  const kpis = [
-    { l: 'Média', v: prova.avg ?? 0, suf: '/10', c: T.ai, big: true },
-    { l: 'Alunos', v: prova.students ?? 0, suf: '', c: T.primaryAlt },
-    { l: 'Aprovação', v: 76, suf: '%', c: T.success },
-    { l: 'Desvio padrão', v: 1.8, suf: '', c: T.warn },
-  ]
-
   return (
     <div style={{ padding: isMobile ? '16px' : '28px 32px 48px', maxWidth: 1400, margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20, gap: 20, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 24, gap: 20, flexWrap: 'wrap' }}>
         <div>
           <button type="button" onClick={() => navigate('/provas')} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'transparent', border: 'none', color: T.textDim, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, padding: 0, marginBottom: 8 }}>
             <I.ArrowLeft size={12} stroke={2} /> Voltar
           </button>
-          <h1 style={{ fontSize: isMobile ? 22 : 30, fontWeight: 700, margin: 0, letterSpacing: -0.8, lineHeight: 1.05, color: T.text }}>{prova.title}</h1>
-          <div style={{ color: T.textDim, fontSize: 13.5, marginTop: 6 }}>{prova.disciplina} · {prova.turma} · aplicada {prova.applied}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <StatusPill T={T} status={exam.status} />
+          </div>
+          <h1 style={{ fontSize: isMobile ? 22 : 30, fontWeight: 700, margin: 0, letterSpacing: -0.8, lineHeight: 1.05, color: T.text }}>{exam.title}</h1>
+          <div style={{ color: T.textDim, fontSize: 13.5, marginTop: 6 }}>{exam.materia.name} · criada {formatDate(exam.createdAt)}</div>
+          {exam.description && <div style={{ color: T.textMute, fontSize: 13, marginTop: 4, maxWidth: 600 }}>{exam.description}</div>}
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <BoldBtn T={T} variant="outline" icon={<I.Doc size={13} stroke={1.8} />} disabled>Exportar PDF</BoldBtn>
-          <Badge T={T} />
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          {exam.status === 'generated' && (
+            <BoldBtn T={T} variant="ai" icon={<I.ArrowRight size={13} stroke={2} />} onClick={() => navigate('/provas/nova/revisar', { state: { examId: exam.id, materiaId: exam.materiaId, versions: exam.versions } })}>
+              Revisar prova
+            </BoldBtn>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BoldBtn T={T} variant="outline" icon={<I.Doc size={13} stroke={1.8} />} disabled>Exportar PDF</BoldBtn>
+            <Badge T={T} />
+          </div>
         </div>
       </div>
 
-      {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 14, marginBottom: 18 }}>
-        {kpis.map((k) => (
-          <div key={k.l} style={{ padding: isMobile ? 16 : 22, borderRadius: 16, background: k.big ? T.hero : T.surface, color: k.big ? '#fff' : T.text, border: k.big ? '1px solid rgba(255,255,255,0.10)' : `1px solid ${T.border}`, position: 'relative', overflow: 'hidden' }}>
-            <div style={{ fontSize: 11.5, color: k.big ? 'rgba(255,255,255,0.65)' : T.textDim, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{k.l}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
-              <span style={{ fontSize: isMobile ? 36 : 44, fontWeight: 700, letterSpacing: -1.6, lineHeight: 1, fontFamily: 'ui-monospace, monospace', background: k.big ? T.aiGrad : 'transparent', WebkitBackgroundClip: k.big ? 'text' : 'unset', WebkitTextFillColor: k.big ? 'transparent' : 'inherit' }}>{k.v}</span>
-              <span style={{ fontSize: 14, color: k.big ? 'rgba(255,255,255,0.55)' : T.textMute }}>{k.suf}</span>
-            </div>
+      {/* Summary KPIs */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+        {[
+          { l: 'Versões', v: exam.versions.length, c: T.ai },
+          { l: 'Matéria', v: exam.materia.name, c: T.primaryAlt, text: true },
+          { l: 'Criada em', v: formatDate(exam.createdAt), c: T.textDim, text: true },
+          { l: 'Atualizada', v: formatDate(exam.updatedAt), c: T.textDim, text: true },
+        ].map((k) => (
+          <div key={k.l} style={{ padding: isMobile ? 16 : 20, borderRadius: 16, background: T.surface, border: `1px solid ${T.border}` }}>
+            <div style={{ fontSize: 11.5, color: T.textDim, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>{k.l}</div>
+            {'text' in k && k.text
+              ? <div style={{ fontSize: 15, fontWeight: 600, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{k.v}</div>
+              : <div style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1.6, lineHeight: 1, fontFamily: 'ui-monospace, monospace', color: T.text }}>{k.v}</div>
+            }
           </div>
         ))}
       </div>
 
-      {/* Charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.4fr 1fr', gap: 18, marginBottom: 18 }}>
-        {/* Distribution */}
-        <div style={{ padding: 24, background: T.surface, borderRadius: 18, border: `1px solid ${T.border}` }}>
-          <div style={{ marginBottom: 18 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, letterSpacing: -0.2, color: T.text }}>Distribuição de notas</h3>
-            <span style={{ fontSize: 12, color: T.textMute }}>{prova.students} alunos · buckets de 1 ponto</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 180 }}>
-            {DIST.map((v, i) => (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{ fontSize: 11.5, color: T.textDim, fontWeight: 600, fontFamily: 'ui-monospace, monospace' }}>{v}</div>
-                <div style={{ width: '100%', height: `${(v / DIST_MAX) * 100}%`, background: i >= 3 ? T.aiGrad : T.surfaceAlt, borderRadius: '8px 8px 4px 4px', minHeight: 4 }} />
-                <div style={{ fontSize: 10, color: T.textMute, fontFamily: 'ui-monospace, monospace' }}>{DIST_LABELS[i]}</div>
-              </div>
-            ))}
-          </div>
+      {/* Analytics placeholder */}
+      <div style={{ padding: 22, background: T.aiBg, border: `1px solid ${T.aiBorder}`, borderRadius: 16, marginBottom: 24, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: T.aiGrad, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <I.Chart size={18} stroke={2} />
         </div>
-
-        {/* Hardest */}
-        <div style={{ padding: 24, background: T.surface, borderRadius: 18, border: `1px solid ${T.border}` }}>
-          <div style={{ marginBottom: 16 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, letterSpacing: -0.2, color: T.text }}>Questões mais difíceis</h3>
-            <span style={{ fontSize: 12, color: T.textMute }}>por % de erro</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {(prova.hardest ?? []).map((h) => (
-              <div key={h.n}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ padding: '2px 7px', borderRadius: 6, background: T.surfaceAlt, fontSize: 10.5, color: T.textDim, fontWeight: 700, fontFamily: 'ui-monospace, monospace' }}>Q{h.n}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: -0.2, color: T.text }}>{h.topic}</span>
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: T.danger, fontFamily: 'ui-monospace, monospace' }}>{h.err}%</span>
-                </div>
-                <div style={{ height: 6, background: T.surfaceAlt, borderRadius: 99, overflow: 'hidden' }}>
-                  <div style={{ width: `${h.err}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #ef4444)' }} />
-                </div>
-              </div>
-            ))}
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: T.text, marginBottom: 4 }}>Analytics de desempenho</div>
+          <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.5 }}>
+            Acertos por questão, distribuição de notas e análise por turma estarão disponíveis quando o módulo de correção for implementado.
           </div>
         </div>
       </div>
 
-      {/* Per-question table */}
-      <div style={{ background: T.surface, borderRadius: 18, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+      {/* Versions & answer keys */}
+      <div style={{ background: T.surface, borderRadius: 16, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
         <div style={{ padding: '16px 22px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, letterSpacing: -0.2, color: T.text }}>Acertos por questão</h3>
-          <span style={{ fontSize: 12, color: T.textMute }}>{prova.questions} questões</span>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, letterSpacing: -0.2, color: T.text }}>Versões geradas</h3>
+          <span style={{ fontSize: 12, color: T.textMute }}>{exam.versions.length} versão(ões)</span>
         </div>
-        {!isMobile && (
-          <div style={{ display: 'grid', gridTemplateColumns: '60px 1.5fr 1fr 100px 100px', padding: '10px 22px', gap: 14, background: T.surfaceAlt, fontSize: 11, color: T.textMute, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>
-            <div>Q</div><div>Tópico</div><div>Acerto</div><div>Tempo</div><div>Dificuldade</div>
+
+        {exam.versions.length === 0 && (
+          <div style={{ padding: 40, textAlign: 'center', color: T.textMute, fontSize: 14 }}>
+            Nenhuma versão gerada. <button type="button" style={{ background: 'none', border: 'none', color: T.ai, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 600 }} onClick={() => navigate('/provas/nova')}>Gerar versões</button>
           </div>
         )}
-        {Array.from({ length: prova.questions }).map((_, i) => {
-          const acerto = 92 - i * 4 + (i % 3) * 6
-          const tempo = 90 + i * 18
-          if (isMobile) {
-            return (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i === prova.questions - 1 ? 'none' : `1px solid ${T.border}` }}>
-                <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', color: T.textDim, fontWeight: 600, minWidth: 30 }}>Q{i + 1}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 500, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{TOPICOS[i % TOPICOS.length]}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                    <div style={{ flex: 1, height: 4, background: T.surfaceAlt, borderRadius: 99, overflow: 'hidden' }}>
-                      <div style={{ width: `${acerto}%`, height: '100%', background: acerto > 70 ? T.success : acerto > 50 ? T.warn : T.danger }} />
-                    </div>
-                    <span style={{ fontSize: 11, color: T.textDim, fontFamily: 'ui-monospace, monospace' }}>{acerto}%</span>
+
+        {exam.versions.map((v, idx) => {
+          const ak = answerKeys[v.id] ?? []
+          const isExpanded = expandedVersionId === v.id
+          return (
+            <div key={v.id} style={{ borderBottom: idx < exam.versions.length - 1 ? `1px solid ${T.border}` : 'none' }}>
+              <button type="button" onClick={() => toggleAnswerKey(v.id)}
+                style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 22px', width: '100%', background: isExpanded ? T.aiBg : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'background .15s' }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: isExpanded ? T.ai : T.surfaceAlt, color: isExpanded ? '#fff' : T.textDim, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, flexShrink: 0, transition: 'background .15s, color .15s' }}>
+                  {v.versionLabel}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: T.text }}>Versão {v.versionLabel}</div>
+                  <div style={{ fontSize: 11.5, color: T.textMute }}>
+                    {isExpanded && ak.length > 0 ? `${ak.length} questões no gabarito` : 'Clique para ver o gabarito'}
                   </div>
                 </div>
-              </div>
-            )
-          }
-          return (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '60px 1.5fr 1fr 100px 100px', gap: 14, padding: '14px 22px', borderBottom: i === prova.questions - 1 ? 'none' : `1px solid ${T.border}`, alignItems: 'center', fontSize: 13 }}>
-              <div style={{ fontFamily: 'ui-monospace, monospace', color: T.textDim, fontWeight: 600 }}>Q{i + 1}</div>
-              <div style={{ fontWeight: 500, color: T.text }}>{TOPICOS[i % TOPICOS.length]}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ flex: 1, height: 6, background: T.surfaceAlt, borderRadius: 99, overflow: 'hidden' }}>
-                  <div style={{ width: `${acerto}%`, height: '100%', background: acerto > 70 ? T.success : acerto > 50 ? T.warn : T.danger }} />
+                <I.ArrowRight size={14} stroke={1.8} style={{ color: T.textMute, transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }} />
+              </button>
+
+              {isExpanded && (
+                <div style={{ padding: '0 22px 16px' }}>
+                  {loadingAk === v.id && <div style={{ padding: 20, textAlign: 'center', color: T.textMute, fontSize: 13 }}>Carregando gabarito…</div>}
+                  {ak.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
+                      {ak.map((item) => (
+                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: T.surfaceAlt, borderRadius: 10 }}>
+                          <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', color: T.textDim, minWidth: 24 }}>Q{item.questionPosition}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 12, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.question.statement.slice(0, 40)}…</div>
+                          </div>
+                          <span style={{ width: 26, height: 26, borderRadius: 7, background: T.aiBg, color: T.ai, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, flexShrink: 0 }}>{item.shuffledLabel}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <span style={{ fontSize: 12, color: T.textDim, fontFamily: 'ui-monospace, monospace', minWidth: 32 }}>{acerto}%</span>
-              </div>
-              <div style={{ fontSize: 12.5, color: T.textDim, fontFamily: 'ui-monospace, monospace' }}>{Math.floor(tempo / 60)}m {tempo % 60}s</div>
-              <div>
-                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: acerto > 70 ? 'rgba(22,163,74,0.10)' : acerto > 50 ? 'rgba(217,119,6,0.10)' : 'rgba(220,38,38,0.10)', color: acerto > 70 ? T.success : acerto > 50 ? T.warn : T.danger }}>
-                  {acerto > 70 ? 'Fácil' : acerto > 50 ? 'Médio' : 'Difícil'}
-                </span>
-              </div>
+              )}
             </div>
           )
         })}

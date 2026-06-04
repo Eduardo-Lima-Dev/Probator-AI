@@ -3,7 +3,7 @@ const API_BASE_URL = normalizeBaseUrl(RAW_API_BASE_URL)
 const TOKEN_KEY = 'probatorai.auth.token'
 
 type ApiRequestOptions = {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   body?: unknown
   auth?: boolean
 }
