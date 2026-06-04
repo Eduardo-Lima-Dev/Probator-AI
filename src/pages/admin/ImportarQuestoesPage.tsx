@@ -25,7 +25,7 @@ export function ImportarQuestoesPage() {
     details: { imported: string[]; skipped: string[] }
   } | null>(null)
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileChange(e: import('react').ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null
     if (!file) return
     setParseError('')
