@@ -17,7 +17,7 @@ const ADMIN_TABS = [
   { to: '/admin/importar', label: 'Importar', icon: (size: number) => <I.Upload size={size} stroke={1.8} /> },
 ]
 
-function TabItem({ item }: { item: (typeof PROFESSOR_TABS)[number] }) {
+function TabItem({ item }: { item: { to: string; label: string; icon: (size: number) => JSX.Element } }) {
   const { T } = useTheme()
   return (
     <NavLink
