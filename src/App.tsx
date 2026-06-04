@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/shell/AppShell'
 import { RequireAuth } from './components/shell/RequireAuth'
+import { RequireRole } from './components/shell/RequireRole'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ProvasPage } from './pages/ProvasPage'
@@ -10,6 +11,11 @@ import { NovaProvaPage } from './pages/NovaProvaPage'
 import { ProcessingPage } from './pages/ProcessingPage'
 import { RevisarProvaPage } from './pages/RevisarProvaPage'
 import { AnalyticsPage } from './pages/AnalyticsPage'
+import { PerfilPage } from './pages/PerfilPage'
+import { UsuariosPage } from './pages/admin/UsuariosPage'
+import { UsuarioEditarPage } from './pages/admin/UsuarioEditarPage'
+import { ImportarQuestoesPage } from './pages/admin/ImportarQuestoesPage'
+import { BancoQuestoesPage } from './pages/BancoQuestoesPage'
 
 function App() {
   return (
@@ -27,6 +33,14 @@ function App() {
           <Route path="/provas/:id/analytics" element={<AnalyticsPage />} />
           <Route path="/materiais" element={<MateriaisPage />} />
           <Route path="/estatisticas" element={<EstatisticasPage />} />
+          <Route path="/perfil" element={<PerfilPage />} />
+          <Route path="/banco-questoes" element={<BancoQuestoesPage />} />
+
+          <Route element={<RequireRole role="admin" />}>
+            <Route path="/admin/usuarios" element={<UsuariosPage />} />
+            <Route path="/admin/usuarios/:id" element={<UsuarioEditarPage />} />
+            <Route path="/admin/importar" element={<ImportarQuestoesPage />} />
+          </Route>
         </Route>
       </Route>
 

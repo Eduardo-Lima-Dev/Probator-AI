@@ -1,14 +1,24 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useNavigate, Link } from 'react-router-dom'
 import { useTheme } from '../../theme/ThemeContext'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { BoldLogo } from '../ui/BoldLogo'
 import { I } from '../ui/icons'
 import { logoutUser } from '../../api/authApi'
+import { getHealth } from '../../api/healthApi'
 
-const NAV_ITEMS = [
+const PROFESSOR_NAV = [
   { to: '/provas', label: 'Provas', icon: (size: number) => <I.Doc size={size} stroke={1.8} /> },
   { to: '/estatisticas', label: 'Estatísticas', icon: (size: number) => <I.Chart size={size} stroke={1.8} /> },
   { to: '/materiais', label: 'Materiais', icon: (size: number) => <I.Folder size={size} stroke={1.8} /> },
+  { to: '/banco-questoes', label: 'Banco', icon: (size: number) => <I.Inbox size={size} stroke={1.8} /> },
+]
+
+const ADMIN_NAV = [
+  { to: '/materiais', label: 'Materiais', icon: (size: number) => <I.Folder size={size} stroke={1.8} /> },
+  { to: '/banco-questoes', label: 'Banco', icon: (size: number) => <I.Inbox size={size} stroke={1.8} /> },
+  { to: '/admin/usuarios', label: 'Usuários', icon: (size: number) => <I.Users size={size} stroke={1.8} /> },
+  { to: '/admin/importar', label: 'Importar', icon: (size: number) => <I.Upload size={size} stroke={1.8} /> },
 ]
 
 const TURMA_COLORS = ['#7c3aed', '#0ea5e9', '#f59e0b', '#16a34a']
@@ -17,6 +27,15 @@ export function WebSidebar() {
   const { T } = useTheme()
   const { user } = useCurrentUser()
   const navigate = useNavigate()
+  const [apiOnline, setApiOnline] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    getHealth()
+      .then(() => setApiOnline(true))
+      .catch(() => setApiOnline(false))
+  }, [])
+
+  const navItems = user?.role === 'admin' ? ADMIN_NAV : PROFESSOR_NAV
 
   const displayName = user?.email ? user.email.split('@')[0] : 'Usuário'
   const displayInstitution = user?.role ?? ''
@@ -51,7 +70,7 @@ export function WebSidebar() {
 
       {/* Nav items */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -132,10 +151,25 @@ export function WebSidebar() {
         )}
       </div>
 
+      {/* API health indicator */}
+      <div style={{ marginTop: 'auto', paddingBottom: 8, display: 'flex', alignItems: 'center', gap: 6, padding: '12px 4px 8px' }}>
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            flexShrink: 0,
+            background: apiOnline === null ? T.textMute : apiOnline ? T.success : T.danger,
+          }}
+        />
+        <span style={{ fontSize: 11, color: T.textMute }}>
+          {apiOnline === null ? 'Verificando API…' : apiOnline ? 'API online' : 'API offline'}
+        </span>
+      </div>
+
       {/* User card */}
       <div
         style={{
-          marginTop: 'auto',
           padding: 12,
           background: T.surfaceAlt,
           borderRadius: 12,
@@ -143,64 +177,77 @@ export function WebSidebar() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 10,
-              background: 'linear-gradient(135deg, #0b1f4d, #2c1d6b)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 700,
-              fontSize: 12,
-              flexShrink: 0,
-            }}
+          {/* Clickable profile area */}
+          <Link
+            to="/perfil"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0, textDecoration: 'none' }}
           >
-            {initials}
-          </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
             <div
               style={{
-                fontSize: 12.5,
-                fontWeight: 600,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                color: T.text,
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #0b1f4d, #2c1d6b)',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: 12,
+                flexShrink: 0,
               }}
             >
-              {displayName}
+              {initials}
             </div>
-            <div
-              style={{
-                fontSize: 11,
-                color: T.textMute,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {displayInstitution}
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  color: T.text,
+                }}
+              >
+                {displayName}
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: T.textMute,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {displayInstitution}
+              </div>
             </div>
-          </div>
+          </Link>
+
           <button
             type="button"
             onClick={handleLogout}
             aria-label="Sair"
             style={{
-              background: 'transparent',
-              border: 'none',
-              color: T.textMute,
+              background: T.surfaceAlt,
+              border: `1px solid ${T.border}`,
+              color: T.textDim,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              padding: 4,
-              borderRadius: 6,
+              gap: 5,
+              padding: '5px 9px',
+              borderRadius: 8,
+              flexShrink: 0,
+              fontFamily: 'inherit',
+              fontSize: 12,
+              fontWeight: 500,
             }}
           >
-            <I.Logout size={14} stroke={1.8} />
+            <I.Logout size={13} stroke={1.8} />
+            Sair
           </button>
         </div>
       </div>
