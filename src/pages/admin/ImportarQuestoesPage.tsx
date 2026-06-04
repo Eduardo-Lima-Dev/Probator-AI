@@ -62,8 +62,8 @@ export function ImportarQuestoesPage() {
     setImportError('')
     try {
       const result = await importFromNotebooklm(parsedPayload)
-      setImportResult(result)
       handleClear()
+      setImportResult(result)
     } catch (err) {
       setImportError(err instanceof Error ? err.message : 'Erro ao importar questões.')
     } finally {
