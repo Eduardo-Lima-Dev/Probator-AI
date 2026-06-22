@@ -14,6 +14,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+Probator-AI Versao B Web _standalone_.html
 
 # Editor directories and files
 .vscode/*
