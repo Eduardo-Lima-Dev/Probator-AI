@@ -26,3 +26,9 @@ Probator-AI Versao B Web _standalone_.html
 *.njsproj
 *.sln
 *.sw?
+
+# Claude
+.claude
+
+# Standalone mockups
+*standalone*.html

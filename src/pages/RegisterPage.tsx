@@ -1,81 +1,106 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react'
+import type { FormEvent } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { registerUser } from '../api/authApi'
+import { useTheme } from '../theme/ThemeContext'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { BoldLogo } from '../components/ui/BoldLogo'
+import { BoldBtn } from '../components/ui/BoldBtn'
+import { BoldField } from '../components/ui/BoldField'
+import { I } from '../components/ui/icons'
 
 export function RegisterPage() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-page p-4 font-sans">
-      <div className="w-full max-w-lg">
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 text-white shadow-lg shadow-primary-200">
-            <span className="text-3xl font-bold">P</span>
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-secondary-900 font-display">Crie sua conta</h1>
-          <p className="mt-2 text-secondary-500">Junte-se a milhares de estudantes e alcance sua aprovação.</p>
-        </div>
+  const { T } = useTheme()
+  const isMobile = useIsMobile()
+  const navigate = useNavigate()
 
-        <div className="card-premium p-8">
-          <form className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="mb-1.5 block text-sm font-semibold text-secondary-700">Nome</label>
-                <input
-                  type="text"
-                  placeholder="Seu nome"
-                  className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-semibold text-secondary-700">Sobrenome</label>
-                <input
-                  type="text"
-                  placeholder="Seu sobrenome"
-                  className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-                />
-              </div>
-            </div>
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-secondary-700">E-mail</label>
-              <input
-                type="email"
-                placeholder="seu@email.com"
-                className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-              />
-            </div>
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.')
+      return
+    }
+    setIsLoading(true)
+    try {
+      await registerUser({ name, email, password, materiaId: '' })
+      navigate('/login', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível criar a conta.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-secondary-700">Senha</label>
-              <input
-                type="password"
-                placeholder="Mínimo 8 caracteres"
-                className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-              />
-            </div>
+  const formContent = (
+    <div style={{ flex: isMobile ? undefined : 0.85, padding: isMobile ? '28px 24px 40px' : '48px 72px', background: T.bg, display: 'flex', flexDirection: 'column', justifyContent: isMobile ? undefined : 'center', overflowY: 'auto' }}>
+      <div style={{ maxWidth: isMobile ? undefined : 400, width: '100%' }}>
+        <button type="button" onClick={() => navigate('/login')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', color: T.textDim, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, padding: 0, marginBottom: 20 }}>
+          <I.ArrowLeft size={14} stroke={2} /> Voltar para login
+        </button>
 
-            <div className="flex items-start gap-3 py-2">
-              <input
-                type="checkbox"
-                id="terms"
-                className="mt-1 h-4 w-4 rounded-sm border-border-soft text-primary-600 focus:ring-primary-500"
-              />
-              <label htmlFor="terms" className="text-xs text-secondary-500 leading-relaxed">
-                Eu concordo com os <Link to="#" className="font-bold text-primary-600">Termos de Serviço</Link> e{' '}
-                <Link to="#" className="font-bold text-primary-600">Política de Privacidade</Link> da ProbatorAI.
-              </label>
-            </div>
+        <h2 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 700, margin: '0 0 6px', letterSpacing: -0.8, color: T.text }}>Criar conta</h2>
+        <p style={{ color: T.textDim, margin: '0 0 24px', fontSize: 14 }}>Junte-se ao Probator·AI para criar provas com IA.</p>
 
-            <button type="submit" className="btn-primary w-full py-3.5 text-base">
-              Criar Conta Grátis
-            </button>
-          </form>
-        </div>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <BoldField T={T} label="NOME COMPLETO" type="text" value={name} onChange={setName} placeholder="Prof. Ricardo Silva" required autoComplete="name" />
+          <BoldField T={T} label="E-MAIL INSTITUCIONAL" type="email" value={email} onChange={setEmail} placeholder="prof@universidade.br" required autoComplete="email" />
+          <BoldField T={T} label="SENHA" type="password" value={password} onChange={setPassword} placeholder="••••••••" required autoComplete="new-password" />
+          <BoldField T={T} label="CONFIRMAR SENHA" type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="••••••••" required autoComplete="new-password" />
 
-        <p className="mt-8 text-center text-sm text-secondary-500">
+          {error && (
+            <div style={{ fontSize: 13, color: T.danger, padding: '10px 14px', background: `${T.danger}12`, borderRadius: 10, border: `1px solid ${T.danger}30` }}>{error}</div>
+          )}
+
+          <BoldBtn T={T} size="lg" variant="ai" type="submit" disabled={isLoading} iconRight={<I.ArrowRight size={16} stroke={2.2} />} style={{ width: '100%', marginTop: 4 }}>
+            {isLoading ? 'Criando conta…' : 'Criar conta'}
+          </BoldBtn>
+        </form>
+
+        <p style={{ marginTop: 24, color: T.textDim, fontSize: 13.5, textAlign: 'center' }}>
           Já tem uma conta?{' '}
-          <Link to="/login" className="font-bold text-primary-600 hover:text-primary-700">
-            Fazer login
-          </Link>
+          <Link to="/login" style={{ color: T.ai, textDecoration: 'none', fontWeight: 600 }}>Entrar</Link>
         </p>
       </div>
     </div>
-  );
+  )
+
+  if (isMobile) {
+    return (
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: T.bg, minHeight: '100vh' }}>
+        <div style={{ background: T.hero, padding: '28px 24px 32px', color: '#fff', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <BoldLogo size={28} />
+            <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: -0.3 }}>Probator·AI</span>
+          </div>
+          <h1 style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.1, letterSpacing: -0.8, margin: '16px 0 8px' }}>Comece a criar provas inteligentes.</h1>
+        </div>
+        {formContent}
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ flex: 1, display: 'flex', minHeight: '100vh' }}>
+      <div style={{ flex: 1.1, background: T.hero, color: '#fff', padding: '40px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40 }}>
+          <BoldLogo size={40} />
+          <span style={{ fontWeight: 700, fontSize: 20, letterSpacing: -0.3 }}>Probator·AI</span>
+        </div>
+        <h1 style={{ fontSize: 56, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, margin: '0 0 18px', maxWidth: 480 }}>
+          Comece a criar provas{' '}
+          <em style={{ fontStyle: 'normal', background: T.aiGrad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>inteligentes</em>.
+        </h1>
+        <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', maxWidth: 420, lineHeight: 1.5 }}>Crie sua conta em segundos e comece a gerar avaliações com IA.</p>
+      </div>
+      {formContent}
+    </div>
+  )
 }
