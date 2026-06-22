@@ -1,204 +1,118 @@
-import { Card } from '../components/ui/Card'
-import { recentExams } from '../constants/dashboard'
+import { Layout } from '../components/Layout';
+import { recentExams } from '../constants/dashboard';
 
 export function DashboardPage() {
   return (
-    <main className="min-h-screen bg-page pb-28 pt-6 font-sans text-secondary-800">
-      <div className="mx-auto w-full max-w-md px-4">
-        <header className="mb-6">
-          <h1 className="text-[32px] leading-tight font-semibold text-secondary-800">Ola, Fulano</h1>
-          <p className="mt-2 text-base text-neutral-600">Aqui esta um resumo das suas provas recentes.</p>
-        </header>
+    <Layout>
+      <div className="space-y-8">
+        {/* Welcome Section */}
+        <div>
+          <h1 className="text-3xl font-bold text-secondary-900">Olá, Fulano! 👋</h1>
+          <p className="mt-1 text-secondary-500">Seu progresso está excelente. Continue assim!</p>
+        </div>
 
-        <section className="mb-8 grid grid-cols-2 gap-4">
-          <Card className="border border-border-soft p-6">
-            <div className="mb-5 inline-flex h-11 w-11 items-center justify-center text-secondary-500">
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-                <path
-                  d="M6.5 12.5l3.2 3.2 7.8-7.8"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="card-premium relative overflow-hidden">
+            <div className="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-primary-50 opacity-50"></div>
+            <p className="text-sm font-medium text-secondary-500 uppercase tracking-wider">Provas Concluídas</p>
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-secondary-900">12</span>
+              <span className="text-sm font-medium text-success">+2 esta semana</span>
             </div>
-            <p className="text-5xl leading-none font-semibold text-secondary-800">12</p>
-            <p className="mt-2 text-sm font-semibold tracking-wide text-secondary-300 uppercase">
-              Concluidas
-            </p>
-          </Card>
-
-          <Card className="border border-border-soft p-6">
-            <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-md bg-primary-50 text-primary-700">
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
-                <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.8" />
-                <path
-                  d="M12 8v4l2.8 2.8"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <p className="text-5xl leading-none font-semibold text-secondary-800">4</p>
-            <p className="mt-2 text-sm font-semibold tracking-wide text-secondary-300 uppercase">
-              Pendentes
-            </p>
-          </Card>
-        </section>
-
-        <section>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Provas Recentes</h2>
-            <button type="button" className="text-base font-semibold text-secondary-300 hover:text-secondary-500">
-              Ver todas →
-            </button>
           </div>
 
-          <div className="space-y-4">
-            {recentExams.map((exam) => (
-              <Card key={exam.id} className="border border-border-soft p-4">
-                <div className="flex items-center gap-3">
-                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-sm bg-neutral-100 text-secondary-400">
-                    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
-                      <path
-                        d="M8 3.5h6l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V5A1.5 1.5 0 0 1 7.5 3.5z"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M14 3.5V8h4"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M9.5 12h5M9.5 15h5"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-base leading-tight font-semibold text-secondary-800">
-                      {exam.title}
-                    </p>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-secondary-300">
-                      <span className="inline-flex items-center gap-1">
-                        <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-                          <rect
-                            x="4"
-                            y="5.5"
-                            width="16"
-                            height="14"
-                            rx="2"
-                            stroke="currentColor"
-                            strokeWidth="1.7"
-                          />
-                          <path
-                            d="M8 3.5v4M16 3.5v4M4 9.5h16"
-                            stroke="currentColor"
-                            strokeWidth="1.7"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        {exam.date}
-                      </span>
-                      <span aria-hidden="true">·</span>
-                      <span className="inline-flex items-center gap-1">
-                        <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-                          <path
-                            d="M8 6.5h11M8 12h11M8 17.5h11"
-                            stroke="currentColor"
-                            strokeWidth="1.7"
-                            strokeLinecap="round"
-                          />
-                          <circle cx="5" cy="6.5" r="1.1" fill="currentColor" />
-                          <circle cx="5" cy="12" r="1.1" fill="currentColor" />
-                          <circle cx="5" cy="17.5" r="1.1" fill="currentColor" />
-                        </svg>
-                        {exam.questions} questoes
-                      </span>
+          <div className="card-premium">
+            <p className="text-sm font-medium text-secondary-500 uppercase tracking-wider">Tempo de Estudo</p>
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-secondary-900">24h</span>
+              <span className="text-sm font-medium text-secondary-400">Total</span>
+            </div>
+          </div>
+
+          <div className="card-premium">
+            <p className="text-sm font-medium text-secondary-500 uppercase tracking-wider">Média de Acertos</p>
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-secondary-900">85%</span>
+              <span className="text-sm font-medium text-success">↑ 5%</span>
+            </div>
+          </div>
+
+          <div className="card-premium">
+            <p className="text-sm font-medium text-secondary-500 uppercase tracking-wider">Simulados Pendentes</p>
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-secondary-900">4</span>
+              <span className="text-sm font-medium text-warning">Aguardando</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity & Quick Action */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Main List */}
+          <div className="lg:col-span-2">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-secondary-900">Provas Recentes</h2>
+              <button className="text-sm font-semibold text-primary-600 hover:text-primary-700">Ver todas</button>
+            </div>
+            
+            <div className="space-y-4">
+              {recentExams.map((exam) => (
+                <div key={exam.id} className="card-premium flex items-center justify-between py-4 hover:translate-x-1">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-2xl">
+                      {exam.id % 2 === 0 ? '📝' : '⚡'}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-secondary-900">{exam.title}</h3>
+                      <div className="mt-1 flex items-center gap-3 text-sm text-secondary-500">
+                        <span>📅 {exam.date}</span>
+                        <span>•</span>
+                        <span>🧩 {exam.questions} questões</span>
+                      </div>
                     </div>
                   </div>
-                  <span
-                    className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${
-                      exam.status === 'completed'
-                        ? 'bg-secondary-50 text-success'
-                        : 'bg-primary-50 text-primary-700'
-                    }`}
-                  >
-                    {exam.status === 'completed' ? (
-                      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-                        <path
-                          d="M6.5 12.5l3.2 3.2 7.8-7.8"
-                          stroke="currentColor"
-                          strokeWidth="2.1"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    ) : (
-                      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-                        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.8" />
-                        <path
-                          d="M12 8v4l2.8 2.8"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <div className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+                      exam.status === 'completed' 
+                        ? 'bg-success/10 text-success' 
+                        : 'bg-primary-50 text-primary-600'
+                    }`}>
+                      {exam.status === 'completed' ? 'Finalizada' : 'Em curso'}
+                    </div>
+                    <button className="h-8 w-8 rounded-full hover:bg-secondary-50 flex items-center justify-center transition-colors">
+                      <span className="text-secondary-400 font-bold">⋮</span>
+                    </button>
+                  </div>
                 </div>
-              </Card>
-            ))}
+              ))}
+            </div>
           </div>
-        </section>
-      </div>
 
-      <nav className="fixed inset-x-0 bottom-4 mx-auto w-full max-w-md px-4">
-        <div className="flex items-center justify-center gap-8 rounded-full bg-surface-soft px-6 py-3 shadow-sm">
-          <button
-            type="button"
-            className="inline-flex min-h-11 min-w-[68px] flex-col items-center justify-center gap-1 rounded-md text-[11px] font-semibold tracking-wide text-primary-800 uppercase"
-          >
-            <span aria-hidden="true" className="text-base leading-none">
-              ☰
-            </span>
-            PROVAS
-          </button>
+          {/* Sidebar Area */}
+          <div className="space-y-6">
+            <div className="card-premium bg-linear-to-br from-primary-600 to-primary-800 text-white border-none shadow-lg shadow-primary-200">
+              <h3 className="text-xl font-bold">Probator Plus</h3>
+              <p className="mt-2 text-primary-100 text-sm">Desbloqueie simulados ilimitados e análise detalhada de desempenho.</p>
+              <button className="mt-6 w-full rounded-lg bg-white py-3 text-sm font-bold text-primary-700 transition-transform hover:scale-[1.02] active:scale-95">
+                Fazer Upgrade
+              </button>
+            </div>
 
-          <button
-            type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary-700 text-xl text-white shadow-sm"
-            aria-label="Criar prova"
-          >
-            +
-          </button>
-
-          <button
-            type="button"
-            className="inline-flex min-h-11 min-w-[68px] flex-col items-center justify-center gap-1 rounded-md text-[11px] font-semibold tracking-wide text-neutral-700 uppercase"
-          >
-            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-              <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-              <path
-                d="M5.5 19c1.4-2.6 3.6-3.9 6.5-3.9s5.1 1.3 6.5 3.9"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            PERFIL
-          </button>
+            <div className="card-premium">
+              <h3 className="font-bold text-secondary-900">Sugestões de Estudo</h3>
+              <div className="mt-4 space-y-3">
+                {['Direito Constitucional', 'Raciocínio Lógico', 'Língua Portuguesa'].map((subject) => (
+                  <div key={subject} className="flex items-center justify-between rounded-lg bg-secondary-50 p-3 transition-colors hover:bg-secondary-100">
+                    <span className="text-sm font-medium text-secondary-700">{subject}</span>
+                    <button className="text-primary-600 text-lg">⊕</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </nav>
-    </main>
-  )
+      </div>
+    </Layout>
+  );
 }

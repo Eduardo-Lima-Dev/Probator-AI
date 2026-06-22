@@ -1,218 +1,81 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { registerUser } from '../api/authApi'
-import { EyeClosedIcon, EyeOpenIcon } from '../components/icons/AuthIcons'
-import { ProbatorLogoIcon } from '../components/icons/ProbatorLogoIcon'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { TextField } from '../components/ui/TextField'
-import { courseOptions } from '../constants/auth'
-
-type RegisterForm = {
-  fullName: string
-  email: string
-  course: string
-  password: string
-  confirmPassword: string
-}
-
-const initialForm: RegisterForm = {
-  fullName: '',
-  email: '',
-  course: '',
-  password: '',
-  confirmPassword: '',
-}
+import { Link } from 'react-router-dom';
 
 export function RegisterPage() {
-  const navigate = useNavigate()
-  const [form, setForm] = useState<RegisterForm>(initialForm)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setMessage('')
-    setError('')
-
-    if (form.password !== form.confirmPassword) {
-      setError('As senhas nao coincidem.')
-      return
-    }
-
-    setIsLoading(true)
-
-    try {
-      await registerUser({
-        name: form.fullName,
-        email: form.email,
-        course: form.course,
-        password: form.password,
-      })
-
-      setMessage('Cadastro realizado com sucesso.')
-      setForm(initialForm)
-      navigate('/login')
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : 'Nao foi possivel concluir o cadastro.',
-      )
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
-    <main className="min-h-screen bg-page px-4 py-8 font-sans text-secondary-800">
-      <div className="mx-auto w-full max-w-md">
-        <header className="mb-4 flex items-center gap-2 px-1 text-xl font-semibold">
-          <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-xl leading-none transition hover:bg-secondary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-            type="button"
-            aria-label="Voltar para login"
-            onClick={() => navigate('/login')}
-          >
-            <span aria-hidden="true">←</span>
-          </button>
-          <strong>Probator-AI</strong>
-        </header>
-
-        <Card className="border border-border-soft">
-          <div className="mx-auto flex w-full justify-center pl-10" aria-label="Logo Probator-IA">
-            <ProbatorLogoIcon iconOnly className="h-28 w-28" />
+    <div className="flex min-h-screen items-center justify-center bg-page p-4 font-sans">
+      <div className="w-full max-w-lg">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 text-white shadow-lg shadow-primary-200">
+            <span className="text-3xl font-bold">P</span>
           </div>
+          <h1 className="text-3xl font-bold tracking-tight text-secondary-900 font-display">Crie sua conta</h1>
+          <p className="mt-2 text-secondary-500">Junte-se a milhares de estudantes e alcance sua aprovação.</p>
+        </div>
 
-          <h1 className="mt-4 text-center text-3xl leading-tight font-semibold">Criar Conta</h1>
-          <p className="mx-auto mt-2 max-w-[320px] text-center text-sm text-neutral-700">
-            Junte-se ao Probator-AI para criar provas de forma mais inteligente.
-          </p>
-
-          <form className="mt-6 flex w-full flex-col gap-4" onSubmit={handleSubmit}>
-            <TextField
-              id="fullName"
-              label="NOME COMPLETO"
-              type="text"
-              placeholder="nome"
-              autoComplete="name"
-              required
-              value={form.fullName}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, fullName: event.target.value }))
-              }
-            />
-
-            <TextField
-              id="email"
-              label="E-MAIL"
-              type="email"
-              placeholder="exemplo@exemplo.com"
-              autoComplete="email"
-              required
-              value={form.email}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, email: event.target.value }))
-              }
-            />
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="course" className="text-sm font-semibold tracking-wide text-secondary-800">
-                CURSO
-              </label>
-              <select
-                id="course"
-                required
-                value={form.course}
-                className="h-14 rounded-sm border border-border-gold bg-surface-soft px-4 text-base text-secondary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, course: event.target.value }))
-                }
-              >
-                <option value="" disabled>
-                  Selecione um curso
-                </option>
-                {courseOptions.map((course) => (
-                  <option key={course} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </select>
+        <div className="card-premium p-8">
+          <form className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-secondary-700">Nome</label>
+                <input
+                  type="text"
+                  placeholder="Seu nome"
+                  className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-secondary-700">Sobrenome</label>
+                <input
+                  type="text"
+                  placeholder="Seu sobrenome"
+                  className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+                />
+              </div>
             </div>
 
-            <TextField
-              id="password"
-              label="SENHA"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="........"
-              autoComplete="new-password"
-              required
-              value={form.password}
-              rightElement={
-                <button
-                  type="button"
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-secondary-500 hover:bg-secondary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                >
-                  {showPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
-                </button>
-              }
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, password: event.target.value }))
-              }
-            />
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-secondary-700">E-mail</label>
+              <input
+                type="email"
+                placeholder="seu@email.com"
+                className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+              />
+            </div>
 
-            <TextField
-              id="confirmPassword"
-              label="CONFIRMAR SENHA"
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="........"
-              autoComplete="new-password"
-              required
-              value={form.confirmPassword}
-              rightElement={
-                <button
-                  type="button"
-                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-secondary-500 hover:bg-secondary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
-                >
-                  {showConfirmPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
-                </button>
-              }
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))
-              }
-            />
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-secondary-700">Senha</label>
+              <input
+                type="password"
+                placeholder="Mínimo 8 caracteres"
+                className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+              />
+            </div>
 
-            <Button type="submit" className="mt-2 h-14 w-full text-base" disabled={isLoading}>
-              {isLoading ? 'Cadastrando...' : 'Cadastrar-se'}
-              <span aria-hidden="true">→</span>
-            </Button>
+            <div className="flex items-start gap-3 py-2">
+              <input
+                type="checkbox"
+                id="terms"
+                className="mt-1 h-4 w-4 rounded-sm border-border-soft text-primary-600 focus:ring-primary-500"
+              />
+              <label htmlFor="terms" className="text-xs text-secondary-500 leading-relaxed">
+                Eu concordo com os <Link to="#" className="font-bold text-primary-600">Termos de Serviço</Link> e{' '}
+                <Link to="#" className="font-bold text-primary-600">Política de Privacidade</Link> da ProbatorAI.
+              </label>
+            </div>
+
+            <button type="submit" className="btn-primary w-full py-3.5 text-base">
+              Criar Conta Grátis
+            </button>
           </form>
+        </div>
 
-          {(message || error) && (
-            <p className={`mt-3 w-full text-center text-sm ${error ? 'text-danger' : 'text-success'}`}>
-              {error || message}
-            </p>
-          )}
-
-          <p className="mt-6 text-center text-base text-neutral-700">
-            Ja tem uma conta?{' '}
-            <Link
-              to="/login"
-              className="font-bold text-secondary-800 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-            >
-              Entrar
-            </Link>
-          </p>
-        </Card>
+        <p className="mt-8 text-center text-sm text-secondary-500">
+          Já tem uma conta?{' '}
+          <Link to="/login" className="font-bold text-primary-600 hover:text-primary-700">
+            Fazer login
+          </Link>
+        </p>
       </div>
-    </main>
-  )
+    </div>
+  );
 }

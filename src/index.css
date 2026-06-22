@@ -1,72 +1,98 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #fff7d6;
-  --color-primary-100: #ffe6a0;
-  --color-primary-200: #f0d060;
-  --color-page: #c9d8f2;
-  --color-primary-300: #d4af37;
-  --color-primary-400: #b89720;
-  --color-primary-500: #9b8100;
-  --color-primary-600: #806b00;
-  --color-primary-700: #665600;
-  --color-primary-800: #4b3f00;
-  --color-primary-900: #2f2700;
-  --color-primary-950: #1f1900;
+  --color-primary-50: #f0f4ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;
 
-  --color-secondary-50: #e7f0fc;
-  --color-secondary-100: #c9d8f2;
-  --color-secondary-200: #93a5c0;
-  --color-secondary-300: #6f819d;
-  --color-secondary-400: #50627c;
-  --color-secondary-500: #344762;
-  --color-secondary-600: #1a2b48;
-  --color-secondary-700: #132742;
-  --color-secondary-800: #0b1d33;
-  --color-secondary-900: #07111f;
+  --color-page: #f9fafb;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f3f4f6;
+  --color-border-soft: #e5e7eb;
+  
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
   --color-secondary-950: #020617;
 
-  --color-neutral-50: #f8fafc;
-  --color-neutral-100: #e5e7eb;
-  --color-neutral-200: #d1d5db;
-  --color-neutral-300: #b8c0cc;
-  --color-neutral-400: #9ca3af;
-  --color-neutral-500: #7c8798;
-  --color-neutral-600: #64748b;
-  --color-neutral-700: #4b5563;
-  --color-neutral-800: #374151;
-  --color-neutral-900: #1f2933;
-  --color-neutral-950: #111827;
+  --color-danger: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
 
-  --color-surface: #e7f0fc;
-  --color-surface-soft: #ddebfa;
-  --color-border-soft: #d8e4f4;
-  --color-border-gold: #c9b16a;
-  --color-danger: #d01818;
-  --color-success: #2e7d32;
-  --color-warning: #d4af37;
-  --color-info: #64748b;
+  --font-sans: "Inter", "Outfit", sans-serif;
+  --font-display: "Outfit", sans-serif;
 
-  --font-sans: "Manrope", Inter, Arial, sans-serif;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
   --radius-xl: 24px;
-  --radius-2xl: 28px;
+  --radius-2xl: 32px;
+
+  --shadow-premium: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-premium-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #root {
+    margin: 0;
+    min-height: 100%;
+    background-color: var(--color-page);
+    color: var(--color-secondary-900);
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 }
 
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-}
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary-500 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-primary-600 active:scale-95 shadow-sm;
+  }
 
-body {
-  font-family: 'Manrope', Inter, Arial, sans-serif;
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-secondary-700 border border-border-soft transition-all hover:bg-secondary-50 active:scale-95 shadow-sm;
+  }
+
+  .card-premium {
+    @apply rounded-xl bg-white p-6 shadow-premium transition-all hover:shadow-premium-hover border border-border-soft;
+  }
+
+  .glass-effect {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+
+  .gradient-dark {
+    @apply bg-linear-to-br from-secondary-900 to-primary-950;
+  }
 }

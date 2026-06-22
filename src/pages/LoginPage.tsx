@@ -1,129 +1,72 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { loginUser } from '../api/authApi'
-import { EyeClosedIcon, EyeOpenIcon } from '../components/icons/AuthIcons'
-import { ProbatorLogoIcon } from '../components/icons/ProbatorLogoIcon'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { TextField } from '../components/ui/TextField'
-
-type LoginForm = {
-  email: string
-  password: string
-}
-
-const initialLoginForm: LoginForm = {
-  email: '',
-  password: '',
-}
+import { Link } from 'react-router-dom';
 
 export function LoginPage() {
-  const navigate = useNavigate()
-  const [form, setForm] = useState<LoginForm>(initialLoginForm)
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setMessage('')
-    setError('')
-    setIsLoading(true)
-
-    try {
-      await loginUser(form)
-      setMessage('Login realizado com sucesso.')
-      navigate('/dashboard')
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : 'Nao foi possivel concluir o login.',
-      )
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
-    <main className="min-h-screen bg-page px-4 py-8 font-sans text-secondary-800">
-      <div className="mx-auto w-full max-w-md">
-        <header className="mb-4 flex items-center gap-2 px-1 text-xl font-semibold">
-          <span className="inline-flex h-11 w-11" aria-hidden="true" />
-        </header>
-
-        <Card className="border border-border-soft">
-          <div className="mx-auto flex w-full justify-center pl-10" aria-label="Logo Probator-IA">
-            <ProbatorLogoIcon iconOnly className="h-28 w-28" />
+    <div className="flex min-h-screen items-center justify-center bg-page p-4 font-sans">
+      <div className="w-full max-w-md">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 text-white shadow-lg shadow-primary-200">
+            <span className="text-3xl font-bold">P</span>
           </div>
+          <h1 className="text-3xl font-bold tracking-tight text-secondary-900 font-display">Bem-vindo de volta</h1>
+          <p className="mt-2 text-secondary-500">Acesse sua conta para continuar seus estudos.</p>
+        </div>
 
-          <h1 className="mt-4 text-center text-3xl leading-tight font-semibold">Entrar</h1>
-          <p className="mx-auto mt-2 max-w-[320px] text-center text-sm text-neutral-700">
-            Acesse sua conta para continuar criando provas com o Probator-AI.
-          </p>
+        <div className="card-premium p-8">
+          <form className="space-y-5">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-secondary-700">E-mail</label>
+              <input
+                type="email"
+                placeholder="seu@email.com"
+                className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="mb-1.5 block text-sm font-semibold text-secondary-700">Senha</label>
+                <Link to="#" className="text-xs font-semibold text-primary-600 hover:text-primary-700">Esqueceu a senha?</Link>
+              </div>
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full rounded-lg border border-border-soft bg-secondary-50 px-4 py-3 text-sm outline-hidden transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+              />
+            </div>
 
-          <form className="mt-6 flex w-full flex-col gap-4" onSubmit={handleSubmit}>
-            <TextField
-              id="loginEmail"
-              label="E-MAIL"
-              type="email"
-              placeholder="exemplo@exemplo.com"
-              autoComplete="email"
-              required
-              value={form.email}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, email: event.target.value }))
-              }
-            />
-
-            <TextField
-              id="loginPassword"
-              label="SENHA"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="........"
-              autoComplete="current-password"
-              required
-              value={form.password}
-              rightElement={
-                <button
-                  type="button"
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-secondary-500 hover:bg-secondary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                >
-                  {showPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
-                </button>
-              }
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, password: event.target.value }))
-              }
-            />
-
-            <Button type="submit" className="mt-2 h-14 w-full text-base" disabled={isLoading}>
-              {isLoading ? 'Entrando...' : 'Entrar'}
-              <span aria-hidden="true">→</span>
-            </Button>
-          </form>
-
-          {(message || error) && (
-            <p className={`mt-3 w-full text-center text-sm ${error ? 'text-danger' : 'text-success'}`}>
-              {error || message}
-            </p>
-          )}
-
-          <p className="mt-6 text-center text-base text-neutral-700">
-            Ainda nao tem uma conta?{' '}
-            <Link
-              to="/cadastro"
-              className="font-bold text-secondary-800 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
-            >
-              Cadastrar-se
+            <Link to="/dashboard" className="btn-primary w-full py-3.5 text-base">
+              Entrar
             </Link>
-          </p>
-        </Card>
+
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border-soft"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-3 text-secondary-400">Ou continue com</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button type="button" className="btn-secondary py-3">
+                <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
+                Google
+              </button>
+              <button type="button" className="btn-secondary py-3">
+                <span className="text-xl"></span>
+                Apple
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <p className="mt-8 text-center text-sm text-secondary-500">
+          Não tem uma conta?{' '}
+          <Link to="/cadastro" className="font-bold text-primary-600 hover:text-primary-700">
+            Cadastre-se grátis
+          </Link>
+        </p>
       </div>
-    </main>
-  )
+    </div>
+  );
 }
