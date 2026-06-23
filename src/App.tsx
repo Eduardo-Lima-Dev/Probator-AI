@@ -10,6 +10,7 @@ import { EstatisticasPage } from './pages/EstatisticasPage'
 import { NovaProvaPage } from './pages/NovaProvaPage'
 import { ProcessingPage } from './pages/ProcessingPage'
 import { RevisarProvaPage } from './pages/RevisarProvaPage'
+import { CorrigirProvaPage } from './pages/CorrigirProvaPage'
 import { AnalyticsPage } from './pages/AnalyticsPage'
 import { PerfilPage } from './pages/PerfilPage'
 import { UsuariosPage } from './pages/admin/UsuariosPage'
@@ -31,6 +32,7 @@ function App() {
           <Route path="/provas/nova/processando" element={<ProcessingPage />} />
           <Route path="/provas/nova/revisar" element={<RevisarProvaPage />} />
           <Route path="/provas/:id/analytics" element={<AnalyticsPage />} />
+          <Route path="/provas/:examId/corrigir" element={<CorrigirProvaPage />} />
           <Route path="/materiais" element={<MateriaisPage />} />
           <Route path="/estatisticas" element={<EstatisticasPage />} />
           <Route path="/perfil" element={<PerfilPage />} />

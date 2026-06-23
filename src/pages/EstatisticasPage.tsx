@@ -4,6 +4,7 @@ import { useTheme } from '../theme/ThemeContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { getAllExams } from '../api/examsApi'
 import type { ExamListItem } from '../api/examsApi'
+import { getCorrectionHistory } from '../lib/correctionHistory'
 import { BoldBtn } from '../components/ui/BoldBtn'
 import { StatusPill } from '../components/ui/StatusPill'
 import { I } from '../components/ui/icons'
@@ -31,6 +32,10 @@ export function EstatisticasPage() {
   useEffect(() => { reload() }, [])
 
   const totalVersions = exams.reduce((acc, e) => acc + e.versions.length, 0)
+  const correcoes = getCorrectionHistory()
+  const mediaAcertos = correcoes.length > 0
+    ? correcoes.reduce((acc, c) => acc + c.acertos / c.total_questoes, 0) / correcoes.length
+    : null
   const kpis = [
     { l: 'Provas criadas', v: exams.length, c: T.ai },
     { l: 'Versões geradas', v: totalVersions, c: T.primaryAlt },
@@ -77,9 +82,16 @@ export function EstatisticasPage() {
         </div>
         <div>
           <div style={{ fontSize: 13.5, fontWeight: 600, color: T.text, marginBottom: 4 }}>Analytics de desempenho</div>
-          <div style={{ fontSize: 12.5, color: T.textDim, lineHeight: 1.5 }}>
-            Acertos por questão, distribuição de notas e desempenho por turma estarão disponíveis com o módulo de correção.
-          </div>
+          {correcoes.length > 0 ? (
+            <div style={{ fontSize: 12.5, color: T.textDim, lineHeight: 1.5 }}>
+              <strong style={{ color: T.text }}>{correcoes.length}</strong> correção(ões) registrada(s) neste dispositivo · média de{' '}
+              <strong style={{ color: T.text }}>{Math.round((mediaAcertos ?? 0) * 100)}%</strong> de acertos.
+            </div>
+          ) : (
+            <div style={{ fontSize: 12.5, color: T.textDim, lineHeight: 1.5 }}>
+              Nenhuma correção registrada ainda. Entre em uma prova gerada e use "Corrigir prova" para ler o gabarito de um aluno.
+            </div>
+          )}
           <div style={{ marginTop: 10 }}>
             <BoldBtn T={T} size="sm" variant="light" icon={<I.ArrowRight size={12} stroke={2} />} onClick={() => navigate('/banco-questoes')}>
               Ver banco de questões

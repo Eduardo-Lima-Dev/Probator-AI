@@ -4,6 +4,7 @@ import { useTheme } from '../theme/ThemeContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { getExamById, getAnswerKey } from '../api/examsApi'
 import type { ExamListItem, AnswerKey } from '../api/examsApi'
+import { getCorrectionHistory } from '../lib/correctionHistory'
 import { StatusPill } from '../components/ui/StatusPill'
 import { BoldBtn } from '../components/ui/BoldBtn'
 import { Badge } from '../components/ui/Badge'
@@ -33,6 +34,11 @@ export function AnalyticsPage() {
       .catch(() => setError('Prova não encontrada.'))
       .finally(() => setLoading(false))
   }, [id])
+
+  const correcoes = id ? getCorrectionHistory(id) : []
+  const mediaAcertos = correcoes.length > 0
+    ? correcoes.reduce((acc, c) => acc + c.acertos / c.total_questoes, 0) / correcoes.length
+    : null
 
   async function toggleAnswerKey(versionId: string) {
     if (expandedVersionId === versionId) {
@@ -88,6 +94,11 @@ export function AnalyticsPage() {
               Revisar prova
             </BoldBtn>
           )}
+          {exam.versions.length > 0 && (
+            <BoldBtn T={T} variant="ai" icon={<I.Check size={13} stroke={2} />} onClick={() => navigate(`/provas/${exam.id}/corrigir`)}>
+              Corrigir prova
+            </BoldBtn>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <BoldBtn T={T} variant="outline" icon={<I.Doc size={13} stroke={1.8} />} disabled>Exportar PDF</BoldBtn>
             <Badge T={T} />
@@ -113,16 +124,23 @@ export function AnalyticsPage() {
         ))}
       </div>
 
-      {/* Analytics placeholder */}
+      {/* Analytics de correção */}
       <div style={{ padding: 22, background: T.aiBg, border: `1px solid ${T.aiBorder}`, borderRadius: 16, marginBottom: 24, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
         <div style={{ width: 40, height: 40, borderRadius: 10, background: T.aiGrad, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <I.Chart size={18} stroke={2} />
         </div>
-        <div>
+        <div style={{ flex: 1 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: T.text, marginBottom: 4 }}>Analytics de desempenho</div>
-          <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.5 }}>
-            Acertos por questão, distribuição de notas e análise por turma estarão disponíveis quando o módulo de correção for implementado.
-          </div>
+          {correcoes.length > 0 ? (
+            <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.5 }}>
+              <strong style={{ color: T.text }}>{correcoes.length}</strong> correção(ões) registrada(s) neste dispositivo · média de{' '}
+              <strong style={{ color: T.text }}>{Math.round((mediaAcertos ?? 0) * 100)}%</strong> de acertos.
+            </div>
+          ) : (
+            <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.5 }}>
+              Nenhuma correção registrada ainda para esta prova. Use "Corrigir prova" para ler o gabarito de um aluno e ver acertos, erros e nota.
+            </div>
+          )}
         </div>
       </div>
 

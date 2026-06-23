@@ -69,8 +69,11 @@ export async function apiRequest<TResponse>(
 ): Promise<TResponse> {
   const { method = 'GET', body, auth = false } = options
   const token = getAccessToken()
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+  const isFormData = body instanceof FormData
+  const headers: Record<string, string> = {}
+
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json'
   }
 
   if (auth) {
@@ -85,7 +88,7 @@ export async function apiRequest<TResponse>(
     response = await fetch(buildUrl(path), {
       method,
       headers,
-      body: body ? JSON.stringify(body) : undefined,
+      body: isFormData ? body : body ? JSON.stringify(body) : undefined,
     })
   } catch {
     throw new Error('Nao foi possivel conectar com a API.')

@@ -139,6 +139,11 @@ export function ProvasPage() {
                     <span style={{ fontSize: 11.5, color: T.textDim, fontFamily: 'ui-monospace, monospace' }}>{e.versions.length} versão(ões)</span>
                   </div>
                 </div>
+                {e.versions.length > 0 && (
+                  <BoldBtn T={T} size="sm" variant="light" icon={<I.Check size={12} stroke={2} />} onClick={() => navigate(`/provas/${e.id}/corrigir`)}>
+                    Corrigir
+                  </BoldBtn>
+                )}
               </div>
             </div>
           ))}
@@ -212,7 +217,7 @@ export function ProvasPage() {
       {/* Table */}
       {!loading && filtered.length > 0 && (
         <div style={{ background: T.surface, borderRadius: 16, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.1fr 1fr 0.7fr 0.8fr', padding: '12px 22px', gap: 14, background: T.surfaceAlt, borderBottom: `1px solid ${T.border}`, fontSize: 11, color: T.textMute, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr 0.9fr 0.6fr 1.6fr', padding: '12px 22px', gap: 14, background: T.surfaceAlt, borderBottom: `1px solid ${T.border}`, fontSize: 11, color: T.textMute, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>
             <div>Título</div><div>Matéria</div><div>Status</div><div>Versões</div><div style={{ textAlign: 'right' }}>Ações</div>
           </div>
 
@@ -221,7 +226,7 @@ export function ProvasPage() {
               key={e.id}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '2fr 1.1fr 1fr 0.7fr 0.8fr',
+                gridTemplateColumns: '1.7fr 1fr 0.9fr 0.6fr 1.6fr',
                 padding: '15px 22px',
                 gap: 14,
                 alignItems: 'center',
@@ -248,6 +253,9 @@ export function ProvasPage() {
                 ) : (
                   <>
                     <BoldBtn T={T} size="sm" variant="light" icon={<I.ArrowRight size={12} stroke={2} />} onClick={() => navigate(`/provas/${e.id}/analytics`)}>Ver</BoldBtn>
+                    {e.versions.length > 0 && (
+                      <BoldBtn T={T} size="sm" variant="light" icon={<I.Check size={12} stroke={2} />} onClick={() => navigate(`/provas/${e.id}/corrigir`)}>Corrigir</BoldBtn>
+                    )}
                     <BoldBtn T={T} size="sm" variant="light" icon={<I.Trash size={12} stroke={2} />} onClick={() => setConfirmDeleteId(e.id)} style={{ color: T.danger }}>Excluir</BoldBtn>
                   </>
                 )}
